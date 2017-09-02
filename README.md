@@ -1,4 +1,7 @@
 # reverse-proxy
+
+[![Build Status](https://travis-ci.org/divanvisagie/reverse-proxy.svg?branch=master)](https://travis-ci.org/divanvisagie/reverse-proxy)
+
 A simple command line reverse proxy
 
 ## Usage
