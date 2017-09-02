@@ -1,45 +1,45 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
 )
 
-type Proxy struct {
-	url    string
-	target string
-}
+func setupReverseProxy(path string, port string, target string) {
+	u, _ := url.Parse(target)
+	http.Handle(path, httputil.NewSingleHostReverseProxy(u))
 
-func readFile() []Proxy {
-	file, err := ioutil.ReadFile("./config.json")
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	jsonMap := make(map[string]string)
-
-	unmarshalError := json.Unmarshal(file, &jsonMap)
-	if unmarshalError != nil {
-		log.Fatalln(unmarshalError.Error())
-	}
-
-	var proxies = make([]Proxy, len(jsonMap))
-
-	i := 0
-	for k, v := range jsonMap {
-		proxies[i] = Proxy{string(k), string(v)}
-		i++
-	}
-
-	return proxies
+	http.ListenAndServe(port, nil)
 }
 
 func main() {
-	proxies := readFile()
+	path := "/"
+	port := ":8080"
+	target := "http://www.google.com"
 
-	for _, proxy := range proxies {
-		fmt.Printf("url: %s target: %s \n", proxy.url, proxy.target)
+	args := os.Args[1:]
+	if len(args) < 1 {
+		errorMessage := "You need to pass in port and target parameters: reverse-proxy :8080 http:\\\\example.com"
+		log.Fatalln(errorMessage)
 	}
+
+	if len(args) == 1 {
+		errorMessage := "You need to provide a target for your proxy"
+		log.Fatalln(errorMessage)
+	}
+
+	if len(args) == 3 {
+		path = args[2]
+	}
+
+	port = args[0]
+	target = args[1]
+
+	fmt.Printf("Proxying calls to %s%s to %s", port, path, target)
+
+	setupReverseProxy(path, port, target)
 }
