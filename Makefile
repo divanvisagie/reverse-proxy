@@ -32,7 +32,7 @@ tidy:
 
 # Install the binary
 install:
-	$(GOINSTALL)
+	@cp bin/reverse-proxy /usr/local/bin/
 
 # Run the application (useful for local development)
 run: build
